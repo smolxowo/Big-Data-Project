@@ -42,10 +42,17 @@ Puis installer Airflow avec la contrainte correspondante :
 
 ### 7. Définir le dossier des DAGs (Dans le cas où tu as déjà définis des DAGs ailleurs)
 `export AIRFLOW__CORE__DAGS_FOLDER=/mnt/c/Users/<TON_USER>/OneDrive/Documents/GitHub/Big-Data-Project/dags`
+# Ou
+`nano ~/airflow/airflow.cfg`
+# Met en commentaire la ligne suivante
+`dags_folder = /home/<TON_USER>/airflow/dags`
+# Et rajoute la suivante
+`dags_folder = /mnt/c/Users/<TON_USER>/OneDrive/Documents/GitHub/Big-Data-Project/dags`
 
 ### 8. Lancer Airflow sur le port 8080
 `airflow standalone`
 
+### 9.
 
 ---
 
