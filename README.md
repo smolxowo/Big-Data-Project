@@ -37,7 +37,7 @@ Pour Windows, installer WSL : [Installation WSL](https://learn.microsoft.com/fr-
 ### 6. Activer un environnement virtuel Python (DANS WSL)
 `source airflow_venv/bin/activate`
 
-### 7. Installer Apache Airflow (version 2.9.0 avec Celery)  (DANS WSL)
+### 7. Installer Apache Airflow (version 2.9.0 avec Celery)  (DANS WSL à faire une fois)
 Récupérer la version de Python :  
 `PYTHON_VERSION=$(python3 --version | cut -d " " -f 2 | cut -d "." -f 1-2)`  
 Puis installer Airflow avec la contrainte correspondante :  
