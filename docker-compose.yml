@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:13
+    container_name: postgres
+    environment:
+      POSTGRES_USER: airbyte
+      POSTGRES_PASSWORD: airbyte
+      POSTGRES_DB: airbyte
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - data-pipeline
+
+  airbyte-server:
+    image: airbyte/airbyte:0.50.24
+    container_name: airbyte-server
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - AIRBYTE_ROLE=server
+    depends_on:
+      - airbyte-db
+    networks:
+      - data-pipeline
+
+  airbyte-db:
+    image: postgres:13
+    container_name: airbyte-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: docker
+      POSTGRES_PASSWORD: docker
+      POSTGRES_DB: airbyte
+    volumes:
+      - airbyte_data:/var/lib/postgresql/data
+    networks:
+      - data-pipeline
+
+  airbyte-worker:
+    image: airbyte/airbyte:0.50.24
+    container_name: airbyte-worker
+    restart: unless-stopped
+    depends_on:
+      - airbyte-server
+      - airbyte-db
+    environment:
+      - AIRBYTE_ROLE=worker
+    networks:
+      - data-pipeline
+
+  airflow:
+    image: apache/airflow:2.9.0-python3.12
+    container_name: airflow
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./dags:/opt/airflow/dags
+    environment:
+      AIRFLOW__CORE__EXECUTOR: CeleryExecutor
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airbyte:airbyte@postgres:5432/airbyte
+      AIRFLOW__CELERY__BROKER_URL: redis://redis:6379/0
+      AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airbyte:airbyte@postgres:5432/airbyte
+      AIRFLOW__CORE__FERNET_KEY: ''
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'false'
+    networks:
+      - data-pipeline
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - data-pipeline
+
+volumes:
+  pg_data:
+  airbyte_data:
+
+networks:
+  data-pipeline:
