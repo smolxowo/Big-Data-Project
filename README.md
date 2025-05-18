@@ -21,6 +21,9 @@ Pour Windows, installer WSL : [Installation WSL](https://learn.microsoft.com/fr-
 `git clone https://github.com/Booboo123478/Big-Data-Project.git`  
 `cd Big-Data-Project`
 
+### 2. Cloner le dépôt
+`cd /mnt/c/Users/<TON_USER>/OneDrive/Documents/GitHub/Big-Data-Project`
+
 ### 2. Installer python3-venv (DANS WSL à faire une fois)
 `sudo apt update`  
 `sudo apt install python3-venv`
