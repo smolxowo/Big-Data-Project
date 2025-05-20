@@ -55,8 +55,18 @@ Puis installer Airflow avec la contrainte correspondante :
 ### 9. Lancer Airflow sur le port 8080
 `airflow standalone`
 
-### 9.
 
+## KAGGLE
+
+### 1. Rentrer clé API KAGGLE dans dossier "config"
+`Kaggle -> Settings -> API -> Create New Token -> mettre "kaggle.json" dans "config" `
+
+### 2. Définir emplacement clé API KAGGLE
+`export KAGGLE_CONFIG_DIR=/chemin/vers/mon-projet/config`
+
+### 3. Télécharger Data Lake
+`python .\download_netflix.py`
+`python .\download_tmdb_movies.py`
 ---
 
 ## ⚙️ Utilisation
