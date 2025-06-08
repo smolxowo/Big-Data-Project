@@ -6,10 +6,10 @@ import sys
 import os
 
 # Ajouter le dossier parent au path pour les imports Python
-sys.path.append(os.path.abspath(os.path.dirname(os.path.dirname(__file__))))
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from download_tmdb_movies import download_and_extract_tmdb_dataset
-from download_netflix import download_and_extract_netflix_dataset
+from ingestion.download_tmdb_movies import download_and_extract_tmdb_dataset
+from ingestion.download_netflix import download_and_extract_netflix_dataset
 
 default_args = {
     'owner': 'airflow',
@@ -23,7 +23,7 @@ default_args = {
 with DAG(
     'pipeline_dag',
     default_args=default_args,
-    description='Pipeline complet : ingestion+formatting+combinaison',
+    description='Pipeline complet : ingestion + formatting + combinaison',
     schedule=None,
     start_date=datetime(2023, 1, 1),
     catchup=False,
@@ -42,8 +42,8 @@ with DAG(
 
     task_format_tmdb = SparkSubmitOperator(
         task_id='format_tmdb',
-        application=os.path.abspath("spark_jobs/format_tmdb.py"),
-        conn_id='spark_default',  
+        application=os.path.abspath("formatting/format_tmdb.py"),
+        conn_id='spark_default',
         verbose=True,
         executor_memory='1g',
         driver_memory='1g',
@@ -53,7 +53,7 @@ with DAG(
 
     task_format_netflix = SparkSubmitOperator(
         task_id='format_netflix',
-        application=os.path.abspath("spark_jobs/format_netflix.py"),
+        application=os.path.abspath("formatting/format_netflix.py"),
         conn_id='spark_default',
         verbose=True,
         executor_memory='1g',
@@ -64,7 +64,7 @@ with DAG(
 
     task_combine = SparkSubmitOperator(
         task_id='combine_datasets',
-        application=os.path.abspath("spark_jobs/combine_datasets.py"),
+        application=os.path.abspath("combination/combine_datasets.py"),
         conn_id='spark_default',
         verbose=True,
         executor_memory='1g',
