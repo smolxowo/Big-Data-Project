@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Aller à la racine du projet
+cd "$(dirname "$0")/.."
+
 # Active l'environnement virtuel
 source airflow_venv/bin/activate
 

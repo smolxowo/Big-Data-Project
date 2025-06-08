@@ -1,0 +1,43 @@
+{
+  "total_movies": 4291,
+  "average_runtime": 110.47215101374971,
+  "average_tmdb_rating": 6.512378466404337,
+  "average_imdb_rating": 6.466926164744063,
+  "average_roi": 647.3846029701476,
+  "top_tmdb_genres": [
+    "Drama",
+    "Action",
+    "Comedy",
+    "Horror",
+    "Thriller"
+  ],
+  "top_languages": [
+    "en",
+    "fr",
+    "hi",
+    "ko",
+    "es"
+  ],
+  "top_roi_movies": [
+    {
+      "title": "Between Us",
+      "roi": 2755584.0
+    },
+    {
+      "title": "The Blair Witch Project",
+      "roi": 4143.984983333334
+    },
+    {
+      "title": "Paranormal Activity",
+      "roi": 899.3293023255814
+    },
+    {
+      "title": "One Cut of the Dead",
+      "roi": 526.4698698622295
+    },
+    {
+      "title": "Open Water",
+      "roi": 420.52272307692306
+    }
+  ]
+}
