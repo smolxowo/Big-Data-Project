@@ -3,3 +3,4 @@ apache-airflow-providers-apache-spark==4.1.1
 pyspark==3.4.1
 kaggle==1.5.16
 requests==2.31.0
+elasticsearch==8.13.0

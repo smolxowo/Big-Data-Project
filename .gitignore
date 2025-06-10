@@ -1,8 +1,37 @@
+# Environnement virtuel
 airflow_venv/
+
+# Caches Python
 __pycache__/
 *.pyc
+
+# Logs
 *.log
+
+# Fichiers de configuration sensibles
 .env
-.airflow/
 config/kaggle.json
+
+# Dossiers Airflow
+.airflow/
+
+# Données brutes
 data/raw/
+
+# Données formatées, combinées, KPI
+data/formatted/
+data/combined/
+data/kpis/
+
+# Fichiers Parquet
+*.parquet
+*.crc
+_SUCCESS
+
+# Elasticsearch & Kibana (si téléchargés localement)
+elasticsearch-*/
+kibana-*/
+
+# Fichiers temporaires ou système
+.DS_Store
+*.swp
