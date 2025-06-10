@@ -1,4 +1,3 @@
-# combined_data_kpis.py
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, avg, desc, split
 from datetime import datetime

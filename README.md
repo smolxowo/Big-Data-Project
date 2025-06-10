@@ -1,133 +1,229 @@
 # 🚀 Big Data Project – Airflow + PySpark + DataLake
 
-Pipeline de traitement de données automatisé et modulaire utilisant Apache Airflow, PySpark, API REST et DataLake.
+Pipeline de traitement de données automatisé et modulaire utilisant Apache Airflow, PySpark, API KAGGLE, DataLake, Elasticsearch et Kibana.
 
 ---
 
 ## 📁 Prérequis
 
-- Système Linux, macOS ou Windows avec WSL
+- Système Linux/macOS ou Windows avec WSL
 - Python 3.7+
 - pip
 - git
 - Compte Kaggle avec clé API (`kaggle.json`)
 
-Pour Windows, installer WSL : [Installation WSL](https://learn.microsoft.com/fr-fr/windows/wsl/install)
+---
+
+## 🧱 Installation & Configuration
+
+### 🔁 Passage sous WSL (si Windows)
+Suivre le guide officiel : [Installation WSL](https://learn.microsoft.com/fr-fr/windows/wsl/install)
 
 ---
 
-## 🧱 Installation
+## 🔧 Installation
 
 ### 1. Cloner le dépôt
 
-`git clone https://github.com/Booboo123478/Big-Data-Project.git`  
-`cd Big-Data-Project`
+```bash
+git clone https://github.com/Booboo123478/Big-Data-Project.git
+cd Big-Data-Project
+```
 
-### 2. Installer les dépendances du projet (Dans le projet)
+### 2. Créer un environnement virtuel
 
-`pip install -r requirements.txt`
+```bash
+sudo apt update
+sudo apt install python3-venv -y
+python3 -m venv airflow_venv
+source airflow_venv/bin/activate
+```
 
-### 3. Chemin classic (Dans WSL) (à redéfinir à votre cas)
+### 3. Installer les dépendances
 
-`cd /mnt/c/Users/<TON_USER>/OneDrive/Documents/GitHub/Big-Data-Project`
+```bash
+pip install -r requirements.txt
+```
 
-### 4. Installer python3-venv (DANS WSL à faire une fois)
+### 4. Installer Airflow
 
-`sudo apt update`  
-`sudo apt install python3-venv`
-
-### 5. Créer un environnement virtuel Python (DANS WSL à faire une fois)
-
-`python3 -m venv airflow_venv`
-
-### 6. Activer un environnement virtuel Python (DANS WSL)
-
-`source airflow_venv/bin/activate`
-
-### 7. Installer Apache Airflow (version 2.9.0 avec Celery) (DANS WSL à faire une fois)
-
-Récupérer la version de Python :  
-`PYTHON_VERSION=$(python3 --version | cut -d " " -f 2 | cut -d "." -f 1-2)`  
-Puis installer Airflow avec la contrainte correspondante :  
-`pip install "apache-airflow[celery]==2.9.0" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.9.0/constraints-$PYTHON_VERSION.txt"`
-
-### 8. Définir le dossier des DAGs (Dans le cas où tu as déjà définis des DAGs ailleurs)
-
-`export AIRFLOW__CORE__DAGS_FOLDER=/mnt/c/Users/<TON_USER>/OneDrive/Documents/GitHub/Big-Data-Project/dags`
-
-#### Ou
-
-`nano ~/airflow/airflow.cfg`
-
-#### Met en commentaire la ligne suivante
-
-`dags_folder = /home/<TON_USER>/airflow/dags`
-
-#### Et rajoute la suivante
-
-`dags_folder = /mnt/c/Users/<TON_USER>/OneDrive/Documents/GitHub/Big-Data-Project/dags`
-
-### 9. Lancer Airflow sur le port 8080
-
-`airflow standalone`
-
-## KAGGLE
-
-### 1. Rentrer clé API KAGGLE dans dossier "config"
-
-`Kaggle -> Settings -> API -> Create New Token -> mettre "kaggle.json" dans "config" `
-
-### 2. Définir emplacement clé API KAGGLE
-
-`export KAGGLE_CONFIG_DIR=/chemin/vers/mon-projet/config`
-
-### 3. Télécharger Data Lake
-
-`python .\download_netflix.py`
-`python .\download_tmdb_movies.py`
-
-## Spark
-
-### 1. Installer Java
-`sudo apt update`
-`sudo apt install openjdk-17-jdk -y`
-
-Vérification :
-`readlink -f $(which java)`
-
-Tu dois obtenir un chemin comme :
-`/usr/lib/jvm/java-17-openjdk-amd64/bin/java`
-
-Vérifie que ça correspond bien au script `start_airflow.sh`
+```bash
+PYTHON_VERSION=$(python3 --version | cut -d " " -f 2 | cut -d "." -f 1-2)
+pip install "apache-airflow[celery]==2.9.0" --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.9.0/constraints-$PYTHON_VERSION.txt"
+```
 
 ---
 
-## ⚙️ Utilisation
+## 🔗 Configuration Airflow
 
-- L’interface Airflow est accessible sur http://localhost:8080
-- Déployer et gérer vos DAGs via l’interface
-- Le scheduler orchestre les exécutions selon les plannings
+### 1. Modifier le dossier des DAGs (si besoin)
 
-## Scripts démarrage et arrêtage Airflow
+```bash
+export AIRFLOW__CORE__DAGS_FOLDER=$(pwd)/dags
+```
 
-Rend exécutables les scripts (une seule fois) :
-Dans le terminal WSL du projet : `chmod +x start_airflow.sh stop_airflow.sh`
+Ou modifier dans `~/airflow/airflow.cfg` :
 
-### Démarrer Airflow
+```ini
+# dags_folder = /home/username/airflow/dags
+dags_folder = /mnt/c/Users/<TON_USER>/Documents/GitHub/Big-Data-Project/dags
+```
 
-Dans le terminal WSL : `./start_airflow.sh`
+### 2. Connexion Spark dans Airflow
 
-Ce script :
-- Active automatiquement l’environnement virtuel airflow_venv
-- Configure le bon dossier de DAGs pour ce projet (dags/)
-- Lance le serveur Airflow (webserver, scheduler, etc.)
-Une fois lancé :
-- Accédez à l'interface : http://localhost:8080
-- Identifiants par défaut : admin / admin
+Interface Airflow > Admin > Connections > Ajouter
 
-### Arrêter Airflow proprement
+- Conn Id: `spark_default`
+- Conn Type: `Spark`
+- Host: `local`
+- Extra:
 
-Dans le terminal WSL : `./stop_airflow.sh`
+```json
+{
+  "master": "local[*]"
+}
+```
+
+---
+
+## 📦 KAGGLE
+
+### 1. Mettre `kaggle.json` dans `config/`
+
+Depuis le site Kaggle > Mon compte > Create New Token
+
+### 2. Exporter la variable
+
+```bash
+export KAGGLE_CONFIG_DIR=$(pwd)/config
+```
+
+---
+
+## ✨ Lancement Airflow
+
+### Rendre les scripts exécutables :
+
+```bash
+chmod +x start_airflow.sh stop_airflow.sh
+```
+
+### Lancer
+
+```bash
+cd scripts
+./start_airflow.sh
+```
+
+Airflow accessible sur [http://localhost:8080](http://localhost:8080)
+
+### Arrêter
+
+```bash
+cd scripts
+./stop_airflow.sh
+```
+
+---
+
+## 🧩 Spark
+
+### 1. Installer Java
+
+```bash
+sudo apt update
+sudo apt install openjdk-17-jdk -y
+```
+
+### 2. Vérifier le chemin Java
+
+```bash
+readlink -f $(which java)
+```
+
+Mettre ce chemin dans `start_airflow.sh` sous `JAVA_HOME`
+
+### 3. Installer Spark
+
+```bash
+wget https://dlcdn.apache.org/spark/spark-3.4.1/spark-3.4.1-bin-hadoop3.tgz
+tar -xvzf spark-3.4.1-bin-hadoop3.tgz
+rm spark-3.4.1-bin-hadoop3.tgz
+```
+
+Ajouter au `~/.bashrc` ou temporairement :
+
+```bash
+export SPARK_HOME=$(pwd)/spark-3.4.1-bin-hadoop3
+export PATH=$PATH:$SPARK_HOME/bin
+```
+
+---
+
+## 🔍 Elasticsearch & Kibana
+
+### 1. Télécharger et copier depuis Windows vers WSL
+
+```bash
+cp /mnt/c/Users/<USER>/Downloads/elasticsearch-<ver>.tar.gz .
+cp /mnt/c/Users/<USER>/Downloads/kibana-<ver>.tar.gz .
+```
+
+### 2. Décompresser
+
+```bash
+tar -xvzf elasticsearch-<ver>.tar.gz
+tar -xvzf kibana-<ver>.tar.gz
+rm *.tar.gz
+```
+
+### 3. Lancer Elasticsearch
+
+```bash
+cd elasticsearch-<ver>
+bin/elasticsearch
+```
+
+### 4. Lancer Kibana
+
+```bash
+cd kibana-<ver>
+bin/kibana
+```
+
+### 5. Suivre les instructions de vérification :
+
+- Copier/coller le code d’enrollment
+- Vérifier le token et code d’authentification
+
+---
+
+## 📊 Kibana - Dashboard
+
+### Importer un dashboard `.ndjson`
+
+1. Aller dans "Stack Management" > "Saved Objects" > Import
+2. Sélectionner le fichier `.ndjson`
+3. Aller dans "Dashboards" > ouvrir
+
+---
+
+## 📤 Exporter vers Windows
+
+Dans le terminal WSL :
+
+```bash
+cp -r ~/Big-Data-Project /mnt/c/Users/<TON_USER>/Desktop/
+```
+
+---
+
+## 📌 Exécution de l’indexation manuellement
+
+```bash
+cd indexing/
+python3 indexing_kpi.py
+```
 
 # Elasticsearch + Kibana
 
