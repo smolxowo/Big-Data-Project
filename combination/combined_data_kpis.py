@@ -42,24 +42,19 @@ kpis["average_imdb_rating"] = df_clean.select(avg("imdbAverageRating")).first()[
 df_roi = df_clean.withColumn("roi", col("revenue") / col("budget"))
 kpis["average_roi"] = df_roi.select(avg("roi")).first()[0]
 
-# Top genres TMDB
+# Top genres TMDB avec le nombre de films par genre
 top_genres_df = df_clean.withColumn("genre_array", split(col("tmdb_genres"), ",")) \
                    .withColumn("genre", col("genre_array")[0]) \
                    .groupBy("genre").count().orderBy(desc("count")).limit(5)
-kpis["top_tmdb_genres"] = [row["genre"] for row in top_genres_df.collect() if row["genre"]]
 
-# # Top genres TMDB avec le nombre de films par genre
-# kpis["top_tmdb_genres"] = [{"genre": row["genre"], "count": row["count"]} for row in top_genres_df.collect() if row["genre"]]
+kpis["top_tmdb_genres"] = [{"genre": row["genre"], "count": row["count"]} for row in top_genres_df.collect() if row["genre"]]
 
 # Langues principales
 top_langs_df = df_clean.groupBy("original_language").count().orderBy(desc("count")).limit(5)
-kpis["top_languages"] = [row["original_language"] for row in top_langs_df.collect() if row["original_language"]]
-
-# # Langue principales avec compteur
-# kpis["languages_distribution"] = [
-#     {"language": row["original_language"], "count": row["count"]}
-#     for row in top_langs_df.collect() if row["original_language"]
-# ]
+kpis["languages_distribution"] = [
+    {"language": row["original_language"], "count": row["count"]}
+    for row in top_langs_df.collect() if row["original_language"]
+]
 
 # Top ROI films
 top_roi_df = df_roi.select("title", "roi").orderBy(desc("roi")).limit(5)
