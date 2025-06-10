@@ -11,6 +11,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from ingestion.download_tmdb_movies import download_and_extract_tmdb_dataset
 from ingestion.download_netflix import download_and_extract_netflix_dataset
 from scripts.cleanup_history import cleanup_old_files
+from indexing.indexing_kpis import indexing_kpis
 
 default_args = {
     'owner': 'airflow',
@@ -55,6 +56,7 @@ with DAG(
         driver_memory='1g',
         num_executors=1,
         executor_cores=1,
+        spark_binary='spark3-submit'
     )
 
     task_format_netflix = SparkSubmitOperator(
@@ -66,6 +68,7 @@ with DAG(
         driver_memory='1g',
         num_executors=1,
         executor_cores=1,
+        spark_binary='spark3-submit'
     )
 
     task_combine = SparkSubmitOperator(
@@ -77,6 +80,7 @@ with DAG(
         driver_memory='1g',
         num_executors=1,
         executor_cores=1,
+        spark_binary='spark3-submit'
     )
 
     task_kpis = SparkSubmitOperator(
@@ -88,10 +92,19 @@ with DAG(
         driver_memory='1g',
         num_executors=1,
         executor_cores=1,
+        spark_binary='spark3-submit'
     )
 
+
+    task_indexing_kpis = PythonOperator(
+        task_id='indexing_kpis',
+        python_callable=indexing_kpis,
+    )
+
+    
     # Dépendances
     [task_ingest_tmdb, task_ingest_netflix] >> task_cleanup
     task_cleanup >> [task_format_tmdb, task_format_netflix]
     [task_format_tmdb, task_format_netflix] >> task_combine
     task_combine >> task_kpis
+    task_kpis >> task_indexing_kpis

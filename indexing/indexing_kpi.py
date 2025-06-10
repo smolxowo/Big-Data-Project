@@ -2,35 +2,43 @@ import os
 import json
 from elasticsearch import Elasticsearch
 
-# Connexion au cluster Elasticsearch (avec HTTPS et authentification)
-es = Elasticsearch(
-    ["https://localhost:9200"],
-    basic_auth=("elastic", "R8=vg8aFslx9fySEIpGY"),
-    verify_certs=False  # Mettre True si tu as configuré les certificats correctement
-)
+def indexing_kpis():
+    es = Elasticsearch(["https://localhost:9200"], basic_auth=("elastic", "R8=vg8aFslx9fySEIpGY"), verify_certs=False)
 
-# Dossier contenant les fichiers KPI JSON
-kpi_folder = "../data/kpis"
+    try:
+        response = es.info()
+        print("✅ Connexion à Elasticsearch réussie :", response)
+    except Exception as e:
+        print("❌ Erreur de connexion :", e)
+        return
 
-# Parcours tous les fichiers du dossier
-for filename in os.listdir(kpi_folder):
-    if filename.endswith(".json"):
-        filepath = os.path.join(kpi_folder, filename)
-        with open(filepath, "r") as f:
-            kpi_data = json.load(f)
+    kpi_folder = "data/kpis"
 
-        # Indexation dans l'index 'kpis'
-        response = es.index(index="kpis", document=kpi_data)
-        print(f"Indexé {filename} avec id {response['_id']}")
+    for filename in os.listdir(kpi_folder):
+        if filename.endswith(".json"):
+            filepath = os.path.join(kpi_folder, filename)
+            with open(filepath, "r") as f:
+                kpi_data = json.load(f)
 
-# # Chemin vers ton fichier JSON
-# file_path = "data/kpis/kpis_25-06-08.json"
+            # Indexation des films
+            if "top_roi_movies" in kpi_data:
+                for movie in kpi_data["top_roi_movies"]:
+                    movie_doc = {"title": movie["title"], "roi": float(movie["roi"])}
+                    es.index(index="kpis", document=movie_doc)
 
-# # Charger le contenu JSON
-# with open(file_path, "r") as f:
-#     kpi_data = json.load(f)
+            # Indexation des langues
+            if "languages_distribution" in kpi_data:
+                for lang in kpi_data["languages_distribution"]:
+                    lang_doc = {"language": lang["language"], "count": int(lang["count"])}
+                    es.index(index="kpis", document=lang_doc)
 
-# # Indexer dans Elasticsearch
-# response = es.index(index="kpis_summary", document=kpi_data)
+            # Indexation des genres
+            if "top_tmdb_genres" in kpi_data:
+                for genre in kpi_data["top_tmdb_genres"]:
+                    # genre_doc = {"genre": genre["genre"], "count": int(genre["count"])}
+                    # es.index(index="kpis", document=genre_doc)
+                    if isinstance(genre, dict) and "genre" in genre and "count" in genre:
+                        genre_doc = {"genre": genre["genre"], "genre_count": int(genre["count"])}
+                        response = es.index(index="kpis_genres", document=genre_doc)
+                        print(f"Indexé {genre['genre']} avec ID {response['_id']}")
 
-# print("Document indexé, ID:", response["_id"])
